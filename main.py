@@ -1,6 +1,5 @@
-def main():
-    print("Hello from multiagent-research-using-langchain!")
+from src.tools.tools import scrap_url
 
-
-if __name__ == "__main__":
-    main()
+url = "https://example.com"
+result = scrap_url(url)
+print(result)
