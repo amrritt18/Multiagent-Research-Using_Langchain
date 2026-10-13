@@ -11,12 +11,95 @@ An AI-powered research assistant that automates web research using a multi-agent
 - **Interactive UI:** Provides a Streamlit interface for submitting research topics and viewing results.
 - **Download Reports:** Exports the research report, critic feedback, or complete research results in Markdown format.
 
-## Workflow
+## Project Architecture
 
-1. **Search Agent** — searches the web for relevant sources.
-2. **Reader Agent** — extracts and summarizes information from selected webpages.
-3. **Writer Chain** — generates a structured research report.
-4. **Critic Chain** — evaluates the report and suggests improvements.
+The project follows a modular architecture that separates agent logic, tools, pipeline orchestration, and the user interface.
+
+### Architecture Diagram
+
+```mermaid
+flowchart TD
+    A[User] --> B[Streamlit UI - app.py]
+    B --> C[Research Pipeline - pipeline.py]
+
+    C --> D[Search Agent]
+    D --> E[Tavily Search Tool]
+    E --> F[Search Results]
+
+    F --> G[Reader Agent]
+    G --> H[Web Scraping Tool]
+    H --> I[Extracted Web Content]
+
+    I --> J[Writer Chain]
+    J --> K[Research Report]
+
+    K --> L[Critic Chain]
+    L --> M[Critic Feedback]
+
+    F --> N[Results Collection]
+    I --> N
+    K --> N
+    M --> N
+
+    N --> B
+    B --> O[Display and Download Results]
+```
+
+### Main Components
+
+**1. User Interface (`app.py`)**
+
+- Built with Streamlit.
+- Accepts research topics from users.
+- Invokes the research pipeline.
+- Displays search results, extracted content, the final report, and critic feedback.
+- Supports downloading individual outputs or the complete research results.
+
+**2. Agent Logic (`src/agents/agents.py`)**
+
+Contains the agent and chain definitions:
+
+- **Search Agent:** Uses the web search tool to find relevant sources.
+- **Reader Agent:** Uses the web scraping tool to extract information from selected URLs.
+- **Writer Chain:** Generates a structured research report from the collected research.
+- **Critic Chain:** Evaluates the generated report and provides feedback.
+
+**3. Tools (`src/tools/tools.py`)**
+
+Provides external information retrieval capabilities:
+
+- **Web Search Tool:** Uses the Tavily API to search for relevant web sources.
+- **Web Scraping Tool:** Extracts webpage content using HTTP requests and HTML content-processing libraries.
+
+**4. Pipeline Orchestration (`src/pipeline/pipeline.py`)**
+
+Coordinates the research workflow in sequential order:
+
+1. Executes the Search Agent.
+2. Passes selected source URLs to the Reader Agent.
+3. Sends the extracted research to the Writer Chain.
+4. Sends the generated report to the Critic Chain.
+5. Collects the outputs into a result dictionary for the UI.
+
+**5. External Services**
+
+- **Groq:** Provides the language model used for agent reasoning, report generation, and report evaluation.
+- **Tavily:** Provides web search capabilities.
+
+### Data Flow
+
+The system processes a research request through the following sequence:
+
+1. The user enters a topic in the Streamlit interface.
+2. The pipeline invokes the Search Agent to find relevant sources.
+3. The Reader Agent extracts and summarizes content from selected webpages.
+4. The Writer Chain generates a structured research report.
+5. The Critic Chain reviews the report and identifies weaknesses.
+6. The pipeline returns the collected results to Streamlit.
+7. The user reviews the outputs and downloads the report or feedback.
+
+**Note:** The current implementation runs these stages sequentially. The Critic provides feedback on the report, but the pipeline does not automatically revise the report based on that feedback.
+
 
 ## Tech Stack
 
