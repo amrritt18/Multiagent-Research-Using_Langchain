@@ -1,5 +1,6 @@
 
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from langchain.agents import create_agent
@@ -10,19 +11,23 @@ from langchain_core.output_parsers import StrOutputParser
 from src.tools.tools import web_search, scrap_url
 
 
-load_dotenv()
+# Project root: Multiagent-Research-Using_Langchain
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+# Load .env from the project root
+ENV_PATH = PROJECT_ROOT / ".env"
+load_dotenv(dotenv_path=ENV_PATH)
 
 api_key = os.getenv("GROQ_API_KEY")
 
 if not api_key:
     raise ValueError(
-        "GROQ_API_KEY is missing. Check your .env file."
+        f"GROQ_API_KEY not found. Check your .env file at: {ENV_PATH}"
     )
-
 
 # Shared LLM
 llm = ChatGroq(
-    model="openai/gpt-oss-120b",
+    model="openai/gpt-oss-20b",
     temperature=0,
     api_key=api_key,
 )
